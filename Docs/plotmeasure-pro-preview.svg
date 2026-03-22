@@ -1,0 +1,28 @@
+<svg width="1440" height="900" viewBox="0 0 1440 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1440" height="900" fill="#F2EFE7"/>
+  <rect x="22" y="22" width="1396" height="856" rx="24" fill="#FFFDF7" stroke="#D6D0C2" stroke-width="2"/>
+  <rect x="42" y="42" width="250" height="816" rx="18" fill="#E7E1D1"/>
+  <rect x="312" y="42" width="786" height="816" rx="18" fill="#F8F5EB" stroke="#D9D2BE"/>
+  <rect x="1118" y="42" width="280" height="816" rx="18" fill="#ECE7DA"/>
+  <rect x="330" y="70" width="750" height="62" rx="14" fill="#23343B"/>
+  <text x="82" y="96" fill="#23343B" font-family="Menlo, monospace" font-size="24">PlotMeasure Pro</text>
+  <text x="84" y="148" fill="#5D6658" font-family="Menlo, monospace" font-size="18">Sidebar</text>
+  <text x="610" y="106" fill="#F4EEDD" font-family="Menlo, monospace" font-size="22" text-anchor="middle">Toolbar: Open • Calibrate • Distance • Area • Edit • Export</text>
+  <rect x="358" y="168" width="694" height="612" rx="16" fill="#FFFFFF" stroke="#C2B9A3" stroke-width="2"/>
+  <path d="M450 320L620 250L860 390L820 610L520 660L430 480Z" fill="#5D9C72" fill-opacity="0.18" stroke="#2E6A43" stroke-width="4"/>
+  <circle cx="450" cy="320" r="8" fill="#2E6A43"/>
+  <circle cx="620" cy="250" r="8" fill="#2E6A43"/>
+  <circle cx="860" cy="390" r="8" fill="#2E6A43"/>
+  <circle cx="820" cy="610" r="8" fill="#2E6A43"/>
+  <circle cx="520" cy="660" r="8" fill="#2E6A43"/>
+  <circle cx="430" cy="480" r="8" fill="#2E6A43"/>
+  <text x="708" y="472" fill="#2E6A43" font-family="Menlo, monospace" font-size="20">Measured plot overlay</text>
+  <text x="1154" y="94" fill="#23343B" font-family="Menlo, monospace" font-size="18">Inspector</text>
+  <text x="1148" y="142" fill="#5D6658" font-family="Menlo, monospace" font-size="15">Calibration</text>
+  <text x="1148" y="178" fill="#5D6658" font-family="Menlo, monospace" font-size="15">Results</text>
+  <text x="1148" y="214" fill="#5D6658" font-family="Menlo, monospace" font-size="15">Points</text>
+  <text x="1148" y="250" fill="#5D6658" font-family="Menlo, monospace" font-size="15">Segments</text>
+  <text x="1148" y="286" fill="#5D6658" font-family="Menlo, monospace" font-size="15">Unit Settings</text>
+  <rect x="330" y="800" width="750" height="38" rx="10" fill="#23343B"/>
+  <text x="356" y="824" fill="#F4EEDD" font-family="Menlo, monospace" font-size="15">Status: cursor coordinates • zoom • calibrated scale • selected unit</text>
+</svg>
