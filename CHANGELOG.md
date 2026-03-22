@@ -4,6 +4,15 @@ All notable changes to this project are documented in this file.
 
 The format follows Keep a Changelog and versioning in this repo starts from `v1.0.0`.
 
+## [Unreleased]
+
+### Added
+
+- Devanagari-aware OCR normalization for map text and scale text
+- Current-page map text OCR in the inspector
+- OCR bounding-box overlays on the PDF canvas
+- Tests for Devanagari digit normalization and scale parsing
+
 ## [1.0.0] - 2026-03-22
 
 ### Added

@@ -14,7 +14,10 @@ struct OCRScaleSuggestion: Identifiable, Hashable {
 
 enum ScaleParser {
     static func parseSuggestions(from textBlocks: [String]) -> [OCRScaleSuggestion] {
-        let normalized = textBlocks.map { $0.lowercased() }
+        let normalized = textBlocks.map { (
+            source: OCRTextNormalizer.normalizedSearchText($0),
+            parsed: OCRTextNormalizer.normalizedScaleText($0)
+        ) }
         var suggestions: [OCRScaleSuggestion] = []
 
         let ratioRegex = try? NSRegularExpression(pattern: #"1\s*[:=]\s*([0-9]+(?:[.,][0-9]+)?)"#)
@@ -22,13 +25,14 @@ enum ScaleParser {
             pattern: #"([0-9]+(?:[.,][0-9]+)?)\s*(inch|inches|in|foot|feet|ft|meter|meters|m)\s*[=]\s*([0-9]+(?:[.,][0-9]+)?)\s*(mile|miles|meter|meters|m|foot|feet|ft|chain|chains|zarib|zaribs)"#
         )
 
-        for block in normalized {
+        for entry in normalized {
+            let block = entry.parsed
             let nsText = block as NSString
             if let match = ratioRegex?.firstMatch(in: block, range: NSRange(location: 0, length: nsText.length)),
                let denominator = value(from: nsText, at: match.range(at: 1)) {
                 suggestions.append(
                     OCRScaleSuggestion(
-                        sourceText: block,
+                        sourceText: entry.source,
                         parsedKind: .ratio(denominator: denominator),
                         confidence: 0.95
                     )
@@ -42,7 +46,7 @@ enum ScaleParser {
                 let groundUnit = normalizeUnit(nsText.substring(with: match.range(at: 4)))
                 suggestions.append(
                     OCRScaleSuggestion(
-                        sourceText: block,
+                        sourceText: entry.source,
                         parsedKind: .mapScale(
                             paperDistance: paper,
                             paperUnitID: paperUnit,

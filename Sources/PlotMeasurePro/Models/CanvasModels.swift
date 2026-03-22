@@ -14,6 +14,9 @@ struct CanvasOverlayState {
     var showBoundingBox: Bool
     var showTriangulation: Bool
     var preferredLinearUnit: LinearUnitDefinition?
+    var recognizedTexts: [RecognizedMapText]
+    var selectedRecognizedTextID: UUID?
+    var showRecognizedTextOverlay: Bool
 }
 
 enum CanvasGestureEvent {

@@ -47,9 +47,13 @@ final class PlotMeasureProViewModel: ObservableObject {
     @Published var zoomScale: Double = 1
     @Published var calibrationForm = CalibrationFormState()
     @Published var ocrSuggestions: [OCRScaleSuggestion] = []
+    @Published var recognizedMapTextsByPage: [Int: [RecognizedMapText]] = [:]
+    @Published var selectedRecognizedTextID: UUID?
     @Published var alertState: AlertState?
     @Published var statusMessage = "Open a survey PDF to start."
     @Published var isRunningOCR = false
+    @Published var isRunningMapTextOCR = false
+    @Published var showRecognizedTextOverlay = true
     @Published var isShowingExportMenu = false
 
     private let projectStore = ProjectStore()
@@ -86,6 +90,10 @@ final class PlotMeasureProViewModel: ObservableObject {
         return nil
     }
 
+    var currentRecognizedMapTexts: [RecognizedMapText] {
+        recognizedMapTextsByPage[currentPageIndex] ?? []
+    }
+
     var overlayState: CanvasOverlayState {
         CanvasOverlayState(
             pageIndex: currentPageIndex,
@@ -99,7 +107,10 @@ final class PlotMeasureProViewModel: ObservableObject {
             calibration: currentCalibration,
             showBoundingBox: showBoundingBox,
             showTriangulation: showTriangulation,
-            preferredLinearUnit: project?.unitSettings.linearUnit(id: project?.unitSettings.preferredLinearUnitID ?? "")
+            preferredLinearUnit: project?.unitSettings.linearUnit(id: project?.unitSettings.preferredLinearUnitID ?? ""),
+            recognizedTexts: currentRecognizedMapTexts,
+            selectedRecognizedTextID: selectedRecognizedTextID,
+            showRecognizedTextOverlay: showRecognizedTextOverlay
         )
     }
 
@@ -242,6 +253,8 @@ final class PlotMeasureProViewModel: ObservableObject {
         draftMeasurement = nil
         calibrationDraftPoints = []
         ocrSuggestions = []
+        recognizedMapTextsByPage = [:]
+        selectedRecognizedTextID = nil
         edgeSnapEngine.clearCache()
         clearHistory()
         applyRotationsFromProject()
@@ -260,6 +273,8 @@ final class PlotMeasureProViewModel: ObservableObject {
         draftMeasurement = nil
         calibrationDraftPoints = []
         ocrSuggestions = []
+        recognizedMapTextsByPage = [:]
+        selectedRecognizedTextID = nil
         edgeSnapEngine.clearCache()
         clearHistory()
         applyRotationsFromProject()
@@ -274,6 +289,7 @@ final class PlotMeasureProViewModel: ObservableObject {
         draftMeasurement = nil
         calibrationDraftPoints = []
         ocrSuggestions = []
+        selectedRecognizedTextID = nil
         statusMessage = "Page \(index + 1) selected."
     }
 
@@ -391,6 +407,37 @@ final class PlotMeasureProViewModel: ObservableObject {
                 }
             }
         }
+    }
+
+    func scanCurrentPageForMapText() {
+        guard let page = pdfDocument?.page(at: currentPageIndex) else { return }
+        isRunningMapTextOCR = true
+        Task {
+            do {
+                let texts = try await ocrDetector.detectMapText(on: page)
+                await MainActor.run {
+                    self.recognizedMapTextsByPage[self.currentPageIndex] = texts
+                    self.selectedRecognizedTextID = texts.first?.id
+                    self.isRunningMapTextOCR = false
+                    self.statusMessage = texts.isEmpty ? "No map text found." : "Read \(texts.count) text item(s) on page \(self.currentPageIndex + 1)."
+                }
+            } catch {
+                await MainActor.run {
+                    self.isRunningMapTextOCR = false
+                    self.presentError(title: "Map Text OCR Failed", error: error)
+                }
+            }
+        }
+    }
+
+    func clearCurrentPageMapText() {
+        recognizedMapTextsByPage[currentPageIndex] = []
+        selectedRecognizedTextID = nil
+        statusMessage = "Cleared map text OCR for page \(currentPageIndex + 1)."
+    }
+
+    func selectRecognizedText(_ id: UUID?) {
+        selectedRecognizedTextID = id
     }
 
     func applyOCRSuggestion(_ suggestion: OCRScaleSuggestion) {

@@ -105,4 +105,39 @@ final class GeometryAndCalibrationTests: XCTestCase {
         )
         XCTAssertGreaterThan(metersPerPoint, 0)
     }
+
+    func testDevanagariDigitsNormalizeForOCRText() {
+        XCTAssertEqual(
+            OCRTextNormalizer.normalizedSearchText("खेसरा १२३४"),
+            "खेसरा 1234"
+        )
+    }
+
+    func testScaleParserReadsDevanagariScaleText() {
+        let suggestions = ScaleParser.parseSuggestions(from: [
+            "१ : ४०००",
+            "१६ इंच = १ मील",
+        ])
+
+        XCTAssertTrue(
+            suggestions.contains {
+                if case .ratio(let denominator) = $0.parsedKind {
+                    return denominator == 4000
+                }
+                return false
+            }
+        )
+
+        XCTAssertTrue(
+            suggestions.contains {
+                if case .mapScale(let paperDistance, let paperUnitID, let groundDistance, let groundUnitID) = $0.parsedKind {
+                    return paperDistance == 16 &&
+                        paperUnitID == "inch" &&
+                        groundDistance == 1 &&
+                        groundUnitID == "mile"
+                }
+                return false
+            }
+        )
+    }
 }

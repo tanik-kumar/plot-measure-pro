@@ -258,6 +258,7 @@ private struct InspectorView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 calibrationSection
+                mapTextOCRSection
                 resultsSection
                 displaySection
                 pointSection
@@ -424,6 +425,79 @@ private struct InspectorView: View {
                 } else {
                     Text("Select a saved measurement or keep drawing to inspect results.")
                         .foregroundStyle(.secondary)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+
+    private var mapTextOCRSection: some View {
+        GroupBox("Map Text OCR") {
+            VStack(alignment: .leading, spacing: 10) {
+                Text("Read map labels and parcel text from the current page, including Devanagari text when OCR can recognize it.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
+                HStack {
+                    Button(viewModel.isRunningMapTextOCR ? "Reading…" : "Read Map Text") {
+                        viewModel.scanCurrentPageForMapText()
+                    }
+                    .disabled(viewModel.isRunningMapTextOCR)
+
+                    Button("Clear") {
+                        viewModel.clearCurrentPageMapText()
+                    }
+                    .disabled(viewModel.currentRecognizedMapTexts.isEmpty)
+                }
+
+                Toggle("Show OCR boxes on map", isOn: $viewModel.showRecognizedTextOverlay)
+
+                if viewModel.currentRecognizedMapTexts.isEmpty {
+                    Text("No map text loaded for this page.")
+                        .foregroundStyle(.secondary)
+                } else {
+                    Text("\(viewModel.currentRecognizedMapTexts.count) text item(s) on this page")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+
+                    ForEach(Array(viewModel.currentRecognizedMapTexts.prefix(40))) { recognizedText in
+                        Button {
+                            viewModel.selectRecognizedText(recognizedText.id)
+                        } label: {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(recognizedText.text)
+                                    .font(.body)
+                                    .foregroundStyle(.primary)
+                                    .multilineTextAlignment(.leading)
+                                if recognizedText.normalizedText != recognizedText.text {
+                                    Text(recognizedText.normalizedText)
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                        .multilineTextAlignment(.leading)
+                                }
+                                Text("\(Int(recognizedText.confidence * 100))% confidence")
+                                    .font(.caption2)
+                                    .foregroundStyle(.secondary)
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(8)
+                            .background(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .fill(
+                                        viewModel.selectedRecognizedTextID == recognizedText.id
+                                        ? Color.accentColor.opacity(0.16)
+                                        : Color.primary.opacity(0.04)
+                                    )
+                            )
+                        }
+                        .buttonStyle(.plain)
+                    }
+
+                    if viewModel.currentRecognizedMapTexts.count > 40 {
+                        Text("Showing first 40 items in the inspector.")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)

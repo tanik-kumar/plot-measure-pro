@@ -9,7 +9,7 @@ APP_NAME="PlotMeasure Pro.app"
 APP_DIR="${DIST_DIR}/${APP_NAME}"
 EXECUTABLE_NAME="PlotMeasurePro"
 SIGN_IDENTITY="${SIGN_IDENTITY:--}"
-APP_VERSION="${APP_VERSION:-1.0.0}"
+APP_VERSION="${APP_VERSION:-1.1.0}"
 ZIP_PATH="${DIST_DIR}/PlotMeasure-Pro-v${APP_VERSION}.zip"
 LEGACY_ZIP_PATH="${DIST_DIR}/PlotMeasure-Pro-Release.zip"
 

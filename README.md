@@ -26,6 +26,7 @@ Current release note:
 - Measure distance, path length, polygon perimeter, and polygon area
 - Store points in native PDF coordinates so zoom and pan do not affect accuracy
 - Edit vertices by drag, insert, delete, and numeric coordinate update
+- Read current-page map text with OCR, including Devanagari text when the OCR engine can recognize it
 - Export JSON, CSV, and annotated PDF outputs
 - Show results in `sq ft`, `sq m`, `acre`, `hectare`, `decimal`, `bigha`, `kattha`, and `dhur`
 - Support OCR-assisted scale suggestions and edge snapping for scanned maps

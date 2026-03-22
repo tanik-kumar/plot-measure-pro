@@ -131,6 +131,8 @@ final class PlotPDFView: PDFView {
         static let invalidPolygon = NSColor(srgbRed: 1.00, green: 0.12, blue: 0.12, alpha: 1.0)
         static let calibration = NSColor(srgbRed: 0.00, green: 0.88, blue: 1.00, alpha: 1.0)
         static let centroid = NSColor(srgbRed: 0.00, green: 0.88, blue: 1.00, alpha: 1.0)
+        static let ocrBox = NSColor(srgbRed: 0.12, green: 0.82, blue: 1.00, alpha: 1.0)
+        static let selectedOCRBox = NSColor(srgbRed: 1.00, green: 0.70, blue: 0.12, alpha: 1.0)
     }
 
     var onCanvasEvent: ((CanvasGestureEvent) -> Void)?
@@ -150,7 +152,10 @@ final class PlotPDFView: PDFView {
         calibration: nil,
         showBoundingBox: false,
         showTriangulation: false,
-        preferredLinearUnit: nil
+        preferredLinearUnit: nil,
+        recognizedTexts: [],
+        selectedRecognizedTextID: nil,
+        showRecognizedTextOverlay: true
     )
     private var activeDrag: (measurementID: UUID, pointID: UUID)?
     private var hoverPagePoint: CGPoint?
@@ -378,6 +383,7 @@ final class PlotPDFView: PDFView {
         guard pageIndex == overlayState.pageIndex else { return }
 
         NSGraphicsContext.saveGraphicsState()
+        drawRecognizedTextOverlay(on: page)
         drawMeasurementOverlays(on: page)
         drawCalibrationOverlay(on: page)
         NSGraphicsContext.restoreGraphicsState()
@@ -633,6 +639,40 @@ final class PlotPDFView: PDFView {
         }
         if let draftMeasurement = overlayState.draftMeasurement {
             drawMeasurement(draftMeasurement, on: page, isSelected: overlayState.selectedMeasurementID == draftMeasurement.id, isDraft: true)
+        }
+    }
+
+    private func drawRecognizedTextOverlay(on page: PDFPage) {
+        guard overlayState.showRecognizedTextOverlay else { return }
+        guard !overlayState.recognizedTexts.isEmpty else { return }
+
+        for recognizedText in overlayState.recognizedTexts {
+            let rect = convert(rect: recognizedText.boundingBox, from: page)
+            guard rect.width > 1, rect.height > 1 else { continue }
+
+            let isSelected = overlayState.selectedRecognizedTextID == recognizedText.id
+            let color = isSelected ? OverlayPalette.selectedOCRBox : OverlayPalette.ocrBox
+            let path = NSBezierPath(roundedRect: rect.insetBy(dx: -2, dy: -2), xRadius: 5, yRadius: 5)
+            path.setLineDash([6, 4], count: 2, phase: 0)
+
+            color.withAlphaComponent(isSelected ? 0.14 : 0.06).setFill()
+            path.fill()
+
+            NSColor.black.withAlphaComponent(0.42).setStroke()
+            path.lineWidth = isSelected ? 3.2 : 2.4
+            path.stroke()
+
+            color.setStroke()
+            path.lineWidth = isSelected ? 1.8 : 1.2
+            path.stroke()
+
+            if isSelected {
+                drawLabel(
+                    recognizedText.text,
+                    at: CGPoint(x: rect.minX, y: rect.maxY + 4),
+                    color: color
+                )
+            }
         }
     }
 
@@ -946,6 +986,17 @@ final class PlotPDFView: PDFView {
         case .polygon:
             return OverlayPalette.savedPolygon
         }
+    }
+
+    private func convert(rect: CGRect, from page: PDFPage) -> CGRect {
+        let topLeft = convert(CGPoint(x: rect.minX, y: rect.maxY), from: page)
+        let bottomRight = convert(CGPoint(x: rect.maxX, y: rect.minY), from: page)
+        return CGRect(
+            x: min(topLeft.x, bottomRight.x),
+            y: min(topLeft.y, bottomRight.y),
+            width: abs(bottomRight.x - topLeft.x),
+            height: abs(bottomRight.y - topLeft.y)
+        )
     }
 
     private func shouldCloseDraft(at viewPoint: CGPoint) -> Bool {
