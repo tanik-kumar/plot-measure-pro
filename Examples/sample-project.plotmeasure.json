@@ -1,0 +1,181 @@
+{
+  "createdAt" : "2026-03-22T00:00:00Z",
+  "id" : "0D53C300-A309-4C0F-A0A8-09A4F6F8E7D3",
+  "name" : "Sample Plot Project",
+  "pages" : [
+    {
+      "calibration" : {
+        "createdAt" : "2026-03-22T00:05:00Z",
+        "id" : "5711A55F-61C5-49AF-B16F-EA965B7A5196",
+        "label" : "Manual - 50 m",
+        "metersPerPDFPoint" : 0.25,
+        "method" : "manualDistance",
+        "pageIndex" : 0,
+        "referenceDistance" : 50,
+        "referenceEndPoint" : {
+          "id" : "D5A22EA7-7550-4D8D-8D31-00F2933A768D",
+          "note" : "",
+          "x" : 300,
+          "y" : 820
+        },
+        "referenceStartPoint" : {
+          "id" : "2308A404-004A-4D8F-9F2B-39D6AEF5C9D0",
+          "note" : "",
+          "x" : 100,
+          "y" : 820
+        },
+        "referenceUnitID" : "meter"
+      },
+      "id" : "5F6EA659-FC6B-466C-8ACD-5D244D3BC5D3",
+      "measurements" : [
+        {
+          "createdAt" : "2026-03-22T00:06:00Z",
+          "id" : "A02413DE-4B03-44F0-A2D8-6A18BE6B29E9",
+          "isClosed" : true,
+          "kind" : "polygon",
+          "name" : "Sample Plot A",
+          "note" : "Example polygon for documentation",
+          "pageIndex" : 0,
+          "points" : [
+            {
+              "id" : "83C0B960-D5AF-4CB4-81D9-C7280D6C7E2A",
+              "note" : "",
+              "x" : 160,
+              "y" : 650
+            },
+            {
+              "id" : "B0E87FBA-31E8-484F-B577-6C33A66F2F2E",
+              "note" : "",
+              "x" : 400,
+              "y" : 650
+            },
+            {
+              "id" : "EAFA155E-D5EE-4387-8B16-4F8B5AA93C2B",
+              "note" : "",
+              "x" : 430,
+              "y" : 430
+            },
+            {
+              "id" : "8E9EF7C2-CC26-4637-98FA-8CC5CB9A4B83",
+              "note" : "",
+              "x" : 180,
+              "y" : 400
+            }
+          ],
+          "updatedAt" : "2026-03-22T00:06:00Z"
+        }
+      ],
+      "pageIndex" : 0,
+      "rotationDegrees" : 0
+    }
+  ],
+  "pdfBookmarkData" : null,
+  "pdfFilePath" : "/path/to/example-map.pdf",
+  "unitSettings" : {
+    "areaUnits" : [
+      {
+        "id" : "sqm",
+        "isEditable" : false,
+        "name" : "Square Meter",
+        "squareMetersPerUnit" : 1,
+        "symbol" : "sq m"
+      },
+      {
+        "id" : "sqft",
+        "isEditable" : false,
+        "name" : "Square Foot",
+        "squareMetersPerUnit" : 0.09290304,
+        "symbol" : "sq ft"
+      },
+      {
+        "id" : "acre",
+        "isEditable" : false,
+        "name" : "Acre",
+        "squareMetersPerUnit" : 4046.8564224,
+        "symbol" : "acre"
+      },
+      {
+        "id" : "hectare",
+        "isEditable" : false,
+        "name" : "Hectare",
+        "squareMetersPerUnit" : 10000,
+        "symbol" : "ha"
+      },
+      {
+        "id" : "decimal",
+        "isEditable" : true,
+        "name" : "Decimal",
+        "squareMetersPerUnit" : 40.468564224,
+        "symbol" : "decimal"
+      },
+      {
+        "id" : "bigha",
+        "isEditable" : true,
+        "name" : "Bigha",
+        "squareMetersPerUnit" : 2722.84667776,
+        "symbol" : "bigha"
+      },
+      {
+        "id" : "kattha",
+        "isEditable" : true,
+        "name" : "Kattha",
+        "squareMetersPerUnit" : 136.142333888,
+        "symbol" : "kattha"
+      },
+      {
+        "id" : "dhur",
+        "isEditable" : true,
+        "name" : "Dhur",
+        "squareMetersPerUnit" : 6.8071166944,
+        "symbol" : "dhur"
+      }
+    ],
+    "linearUnits" : [
+      {
+        "id" : "meter",
+        "isEditable" : false,
+        "metersPerUnit" : 1,
+        "name" : "Meter",
+        "symbol" : "m"
+      },
+      {
+        "id" : "foot",
+        "isEditable" : false,
+        "metersPerUnit" : 0.3048,
+        "name" : "Foot",
+        "symbol" : "ft"
+      },
+      {
+        "id" : "inch",
+        "isEditable" : false,
+        "metersPerUnit" : 0.0254,
+        "name" : "Inch",
+        "symbol" : "in"
+      },
+      {
+        "id" : "chain",
+        "isEditable" : true,
+        "metersPerUnit" : 20.1168,
+        "name" : "Chain",
+        "symbol" : "chain"
+      },
+      {
+        "id" : "zarib",
+        "isEditable" : true,
+        "metersPerUnit" : 20.1168,
+        "name" : "Zarib",
+        "symbol" : "zarib"
+      },
+      {
+        "id" : "mile",
+        "isEditable" : false,
+        "metersPerUnit" : 1609.344,
+        "name" : "Mile",
+        "symbol" : "mi"
+      }
+    ],
+    "preferredAreaUnitID" : "sqm",
+    "preferredLinearUnitID" : "meter"
+  },
+  "updatedAt" : "2026-03-22T00:06:00Z"
+}

@@ -1,0 +1,66 @@
+name: Bug report
+description: Report a problem with PlotMeasure Pro
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. Include exact steps and the map or export workflow that caused it.
+  - type: input
+    id: version
+    attributes:
+      label: App version
+      description: Example: v1.0.0
+      placeholder: v1.0.0
+    validations:
+      required: true
+  - type: dropdown
+    id: workflow
+    attributes:
+      label: Area affected
+      options:
+        - PDF import
+        - Calibration
+        - Point marking
+        - Polygon editing
+        - Export
+        - Performance
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open a PDF
+        2. Calibrate with ...
+        3. Start polygon mode
+        4. ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected result
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual result
+    validations:
+      required: true
+  - type: textarea
+    id: system
+    attributes:
+      label: macOS and device details
+      description: Include macOS version, Mac model, and whether the app was run from Xcode or release zip.
+      placeholder: macOS 14.x, MacBook Pro, release build
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Screenshots or sample files
+      description: Drag screenshots or redacted sample files here if they help.

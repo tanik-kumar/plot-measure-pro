@@ -1,0 +1,46 @@
+name: Feature request
+description: Suggest an improvement for PlotMeasure Pro
+title: "[Feature]: "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Describe the land-measurement workflow you want to improve and why it matters.
+  - type: input
+    id: summary
+    attributes:
+      label: Short summary
+      placeholder: Add GIS export for measured polygons
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem to solve
+      description: Explain the limitation in the current workflow.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Describe the feature or workflow you want.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Mention any workaround or alternate approach.
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Expected impact
+      options:
+        - Low
+        - Medium
+        - High
+    validations:
+      required: true

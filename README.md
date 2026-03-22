@@ -1,55 +1,81 @@
 # PlotMeasure Pro
 
-PlotMeasure Pro is a native macOS land-measurement app built with `SwiftUI` and `PDFKit`. It opens scanned or vector cadastral PDFs, calibrates map scale in PDF page coordinates, lets you draw/edit plot boundaries, and exports the results as reports or annotated PDFs.
+PlotMeasure Pro is a native macOS app for measuring plot and land area from cadastral, survey, and revisional map PDFs. It uses `SwiftUI` and `PDFKit`, stores geometry in PDF page coordinates, supports scale calibration, and exports annotated reports for land-measurement workflows.
 
-## What is implemented
+## Download
 
-- Native macOS UI with left sidebar, PDF canvas, right inspector, toolbar, and status bar
+- Latest release: [v1.0.0](https://github.com/tanik-kumar/plot-measure-pro/releases/tag/v1.0.0)
+- Package asset: `PlotMeasure-Pro-v1.0.0.zip`
+- Target platform: macOS 13+
+
+## Install
+
+1. Download `PlotMeasure-Pro-v1.0.0.zip` from the releases page.
+2. Extract `Plot Measure Pro.app`.
+3. Move it to `/Applications` if you want a standard install.
+4. Open the app.
+
+Current release note:
+- this build is ad hoc signed, not Developer ID notarized
+- macOS Gatekeeper may ask you to confirm opening it on first launch
+
+## Key features
+
+- Open scanned or vector cadastral, survey, and revisional map PDFs
+- Calibrate by manual distance, `1:N` ratio, map scale, or visible scale bar
+- Measure distance, path length, polygon perimeter, and polygon area
+- Store points in native PDF coordinates so zoom and pan do not affect accuracy
+- Edit vertices by drag, insert, delete, and numeric coordinate update
+- Export JSON, CSV, and annotated PDF outputs
+- Show results in `sq ft`, `sq m`, `acre`, `hectare`, `decimal`, `bigha`, `kattha`, and `dhur`
+- Support OCR-assisted scale suggestions and edge snapping for scanned maps
+
+## Preview
+
+![PlotMeasure Pro preview](Docs/plotmeasure-pro-preview.svg)
+
+## v1.0.0 includes
+
+- Native macOS UI with sidebar, PDF canvas, inspector, toolbar, and status bar
 - PDF import, page navigation, page rotation, zoom, and pan
-- Calibration methods:
-  - manual two-point distance calibration
-  - `1:N` ratio calibration
-  - map scale calibration such as `16 inches = 1 mile`
-  - scale-bar calibration using two clicked endpoints and entered bar value
-- Measurement tools:
-  - distance
-  - path length
-  - polygon area
-- Live overlay rendering with:
-  - point labels `P1`, `P2`, ...
-  - side length labels
-  - polygon fill
-  - centroid
-  - optional bounding box
-  - optional triangulation debug overlay
-  - invalid/self-intersecting polygon warning
-- Editing:
-  - drag vertices
-  - insert a vertex by double-clicking a segment in edit mode
-  - delete selected vertex
-  - numeric point-coordinate edits in the inspector
-  - undo/redo snapshot history
-- OCR-assisted scale suggestion scanning with Vision
-- Edge snapping using Core Image edge detection for scanned maps
-- Save/load full project state as JSON
-- Export:
-  - JSON report
-  - CSV report
-  - annotated PDF
-- Bihar/India land units with configurable defaults:
-  - sq ft
-  - sq m
-  - acre
-  - hectare
-  - decimal
-  - bigha
-  - kattha
-  - dhur
+- Multiple calibration workflows
+- Distance, path, and polygon measurement
+- Polygon validity warning, centroid, and live overlay rendering
+- Vertex editing with undo and redo
+- OCR-assisted scale detection
+- Edge snapping support
+- Project save and load as JSON
+- Annotated PDF, CSV, and JSON export
+
+## Supported map and calibration workflows
+
+Supported map types:
+- cadastral maps
+- survey maps
+- revisional maps
+- scanned map PDFs
+- vector map PDFs
+
+Calibration modes:
+- manual two-point calibration
+- `1:N` ratio calibration
+- map scale entry such as `16 inches = 1 mile`
+- scale-bar calibration from visible map conversion bars
+
+## Example files
+
+- Example project: [Examples/sample-project.plotmeasure.json](Examples/sample-project.plotmeasure.json)
+- Example notes: [Examples/README.md](Examples/README.md)
 
 ## Folder structure
 
 ```text
 PlotMeasurePro/
+├── .github/
+│   └── ISSUE_TEMPLATE/
+├── CHANGELOG.md
+├── Examples/
+├── LICENSE
 ├── Package.swift
 ├── README.md
 ├── Docs/
@@ -76,7 +102,7 @@ PlotMeasurePro/
 
 ### Command line
 
-The local sandbox in this environment requires `--disable-sandbox` for SwiftPM. On a regular local machine you usually do not need that flag.
+The local sandbox in this environment requires `--disable-sandbox` for SwiftPM. On a normal local machine you usually do not need that flag.
 
 ```bash
 cd PlotMeasurePro
@@ -97,18 +123,18 @@ swift test --disable-sandbox --scratch-path /tmp/plotmeasure-test-scratch
 
 ## Packaging the macOS app
 
-Run:
-
 ```bash
 cd PlotMeasurePro
 ./Scripts/package_app.sh
 ```
 
-This creates `dist/PlotMeasure Pro.app`.
+This generates:
+- `dist/Plot Measure Pro.app`
+- `dist/PlotMeasure-Pro-v1.0.0.zip`
 
 ## How calibration works
 
-The app stores every clicked vertex in native PDF page coordinates, not screen coordinates. That means zooming and panning never change the actual geometry.
+The app stores every clicked vertex in native PDF page coordinates, not screen coordinates. Zooming and panning never change the actual measurement geometry.
 
 ### Manual calibration
 
@@ -126,7 +152,7 @@ Every later segment length becomes:
 realWorldMeters = pdfDistance * metersPerPDFPoint
 ```
 
-Polygon area is then:
+Polygon area becomes:
 
 ```text
 realWorldAreaSqM = pdfArea * (metersPerPDFPoint ^ 2)
@@ -140,65 +166,56 @@ PDF pages use printer points, where `72 PDF points = 1 inch` on the page. For a 
 metersPerPDFPoint = (0.0254 / 72) * N
 ```
 
-This method assumes the PDF page geometry is faithful to the printed map scale. For scanned maps, manual calibration is usually more reliable.
+This is best when the PDF reflects the printed scale accurately. For scanned maps, manual calibration is often more reliable.
 
 ### Map-scale calibration (`16 inches = 1 mile`)
 
-The app converts both paper distance and ground distance to meters, derives the ratio, then applies the same `1:N` formula internally.
+The app converts both paper distance and ground distance to meters, derives the ratio, and applies the same `1:N` formula internally.
 
-## MVP and V2
+## Known limitations
 
-### MVP
+- Calibration accuracy depends on scan quality and the reliability of the printed scale.
+- Local land-unit standards can vary by district or state, so regional unit settings may need adjustment.
+- Current release is packaged for macOS only.
+- GIS export formats such as GeoJSON or shapefile are not included in `v1.0.0`.
+- This public repo does not bundle any real survey or cadastral source PDFs.
 
-- PDF import and page navigation
-- manual calibration
-- polygon measurement
-- perimeter and area in multiple land units
-- save/load JSON project
-
-### V2 in this codebase
-
-- OCR scale suggestion scanning
-- edge snapping from scanned map edges
-- drag editing, vertex insertion, undo/redo
-- annotated PDF / CSV / JSON export
-
-## Preview stub
-
-Use `Docs/plotmeasure-pro-preview.svg` as a quick layout stub for documentation or planning.
-
-## Performance optimization recommendations
+## Performance notes
 
 - Cache page edge maps per page and invalidate only on rotation or document change.
-- Add thumbnail/page raster caches for OCR and snap assists rather than re-rendering on every request.
+- Add thumbnail or raster caches for OCR and snap assists rather than re-rendering on every request.
 - Move OCR and edge-map generation onto detached background tasks with cancellation.
 - For very dense polygons, cache measurement analysis until points change.
-- If documents become very large, keep only the active page’s overlay geometry in memory and lazy-load the rest.
+- For very large documents, keep only the active page overlay data resident and lazy-load the rest.
 
 ## Packaging and signing guidance
 
-For local packaging, the provided script builds a release executable and wraps it in a `.app` bundle. For distribution:
+For distribution beyond local testing:
 
 1. Sign the app:
 
 ```bash
-codesign --force --deep --sign "Developer ID Application: YOUR NAME" "dist/PlotMeasure Pro.app"
+codesign --force --deep --sign "Developer ID Application: YOUR NAME" "dist/Plot Measure Pro.app"
 ```
 
-2. Verify:
+2. Verify the signature:
 
 ```bash
-codesign --verify --deep --strict --verbose=2 "dist/PlotMeasure Pro.app"
-spctl --assess --type execute --verbose "dist/PlotMeasure Pro.app"
+codesign --verify --deep --strict --verbose=2 "dist/Plot Measure Pro.app"
+spctl --assess --type execute --verbose "dist/Plot Measure Pro.app"
 ```
 
-3. Notarize for distribution with `notarytool`, then staple the ticket.
+3. Notarize with `notarytool`, then staple the ticket.
+
+## Changelog
+
+- [CHANGELOG.md](CHANGELOG.md)
 
 ## Roadmap
 
 - Assisted boundary tracing from detected edges
-- Loupe / magnifier around the pointer
-- multi-plot comparison workflows
-- GIS export formats such as GeoJSON / shapefile handoff
-- optional OpenCV integration for stronger edge and contour extraction
-- richer project library and batch reporting
+- Loupe or magnifier around the pointer
+- Multi-plot comparison workflows
+- GIS export formats such as GeoJSON and shapefile handoff
+- Optional OpenCV integration for stronger edge and contour extraction
+- Richer project library and batch reporting
