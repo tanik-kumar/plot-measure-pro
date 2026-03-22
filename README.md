@@ -30,9 +30,23 @@ Current release note:
 - Show results in `sq ft`, `sq m`, `acre`, `hectare`, `decimal`, `bigha`, `kattha`, and `dhur`
 - Support OCR-assisted scale suggestions and edge snapping for scanned maps
 
-## Preview
+## Screenshots
 
-![PlotMeasure Pro preview](Docs/plotmeasure-pro-preview.svg)
+### Main window
+
+![PlotMeasure Pro main window](Docs/Screenshots/main-window.png)
+
+### Manual calibration on scale bar
+
+![PlotMeasure Pro calibration](Docs/Screenshots/calibration.png)
+
+### Polygon measurement result
+
+![PlotMeasure Pro measurement](Docs/Screenshots/measurement.png)
+
+## Preview stub
+
+![PlotMeasure Pro preview stub](Docs/plotmeasure-pro-preview.svg)
 
 ## v1.0.0 includes
 
@@ -79,7 +93,8 @@ PlotMeasurePro/
 ├── Package.swift
 ├── README.md
 ├── Docs/
-│   └── plotmeasure-pro-preview.svg
+│   ├── plotmeasure-pro-preview.svg
+│   └── Screenshots/
 ├── Scripts/
 │   └── package_app.sh
 ├── Sources/PlotMeasurePro/
