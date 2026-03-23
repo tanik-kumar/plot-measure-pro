@@ -4,13 +4,13 @@ PlotMeasure Pro is a native macOS app for measuring plot and land area from cada
 
 ## Download
 
-- Latest release: [v1.0.0](https://github.com/tanik-kumar/plot-measure-pro/releases/tag/v1.0.0)
-- Package asset: `PlotMeasure-Pro-v1.0.0.zip`
+- Latest release: [v1.1.0](https://github.com/tanik-kumar/plot-measure-pro/releases/tag/v1.1.0)
+- Package asset: `PlotMeasure-Pro-v1.1.0.zip`
 - Target platform: macOS 13+
 
 ## Install
 
-1. Download `PlotMeasure-Pro-v1.0.0.zip` from the releases page.
+1. Download `PlotMeasure-Pro-v1.1.0.zip` from the releases page.
 2. Extract `Plot Measure Pro.app`.
 3. Move it to `/Applications` if you want a standard install.
 4. Open the app.
@@ -49,7 +49,7 @@ Current release note:
 
 ![PlotMeasure Pro preview stub](Docs/plotmeasure-pro-preview.svg)
 
-## v1.0.0 includes
+## v1.1.0 includes
 
 - Native macOS UI with sidebar, PDF canvas, inspector, toolbar, and status bar
 - PDF import, page navigation, page rotation, zoom, and pan
@@ -58,6 +58,9 @@ Current release note:
 - Polygon validity warning, centroid, and live overlay rendering
 - Vertex editing with undo and redo
 - OCR-assisted scale detection
+- Devanagari-aware current-page map text OCR
+- Preview-style text selection mode for embedded PDF text
+- OCR box selection and copyable recognized text in the inspector
 - Edge snapping support
 - Project save and load as JSON
 - Annotated PDF, CSV, and JSON export
@@ -146,7 +149,7 @@ cd PlotMeasurePro
 
 This generates:
 - `dist/Plot Measure Pro.app`
-- `dist/PlotMeasure-Pro-v1.0.0.zip`
+- `dist/PlotMeasure-Pro-v1.1.0.zip`
 
 ## How calibration works
 
@@ -193,7 +196,7 @@ The app converts both paper distance and ground distance to meters, derives the 
 - Calibration accuracy depends on scan quality and the reliability of the printed scale.
 - Local land-unit standards can vary by district or state, so regional unit settings may need adjustment.
 - Current release is packaged for macOS only.
-- GIS export formats such as GeoJSON or shapefile are not included in `v1.0.0`.
+- GIS export formats such as GeoJSON or shapefile are not included in `v1.1.0`.
 - This public repo does not bundle any real survey or cadastral source PDFs.
 
 ## Performance notes

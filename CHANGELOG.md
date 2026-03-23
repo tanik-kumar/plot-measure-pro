@@ -4,14 +4,20 @@ All notable changes to this project are documented in this file.
 
 The format follows Keep a Changelog and versioning in this repo starts from `v1.0.0`.
 
-## [Unreleased]
+## [1.1.0] - 2026-03-23
 
 ### Added
 
 - Devanagari-aware OCR normalization for map text and scale text
 - Current-page map text OCR in the inspector
 - OCR bounding-box overlays on the PDF canvas
+- Preview-style text selection mode for embedded PDF text
+- Copyable selected text from native PDF text selection or OCR results
 - Tests for Devanagari digit normalization and scale parsing
+
+### Fixed
+
+- Startup layout loop introduced by text-selection state updates
 
 ## [1.0.0] - 2026-03-22
 
