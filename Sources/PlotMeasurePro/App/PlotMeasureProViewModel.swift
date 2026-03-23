@@ -467,8 +467,10 @@ final class PlotMeasureProViewModel: ObservableObject {
 
     func setSelectedPDFText(_ text: String?) {
         let trimmed = text?.trimmingCharacters(in: .whitespacesAndNewlines)
-        selectedPDFText = (trimmed?.isEmpty == false) ? trimmed : nil
-        if selectedPDFText != nil {
+        let normalized = (trimmed?.isEmpty == false) ? trimmed : nil
+        guard selectedPDFText != normalized else { return }
+        selectedPDFText = normalized
+        if normalized != nil, selectedRecognizedTextID != nil {
             selectedRecognizedTextID = nil
         }
     }
