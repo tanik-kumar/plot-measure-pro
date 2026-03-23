@@ -23,6 +23,7 @@ enum CanvasGestureEvent {
     case canvasClick(point: CGPoint, pageIndex: Int, clickCount: Int)
     case closeDraft
     case selectMeasurement(UUID?)
+    case selectRecognizedText(UUID?)
     case selectPoint(measurementID: UUID, pointID: UUID)
     case deleteSelectedPoint
     case insertVertex(measurementID: UUID, afterSegmentIndex: Int, point: CGPoint)

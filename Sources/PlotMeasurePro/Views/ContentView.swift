@@ -65,7 +65,7 @@ struct ContentView: View {
                     }
                 }
                 .pickerStyle(.segmented)
-                .frame(width: 420)
+                .frame(width: 500)
                 .help("Select active tool")
             }
 
@@ -258,7 +258,7 @@ private struct InspectorView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 calibrationSection
-                mapTextOCRSection
+                textOCRSection
                 resultsSection
                 displaySection
                 pointSection
@@ -431,26 +431,57 @@ private struct InspectorView: View {
         }
     }
 
-    private var mapTextOCRSection: some View {
-        GroupBox("Map Text OCR") {
+    private var textOCRSection: some View {
+        GroupBox("Text & OCR") {
             VStack(alignment: .leading, spacing: 10) {
-                Text("Read map labels and parcel text from the current page, including Devanagari text when OCR can recognize it.")
+                Text("Use Text mode for native PDF text selection, or run OCR to read scanned map labels and Devanagari parcel text.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
 
                 HStack {
-                    Button(viewModel.isRunningMapTextOCR ? "Reading…" : "Read Map Text") {
+                    Button(viewModel.isRunningMapTextOCR ? "Reading…" : "Read OCR Text") {
                         viewModel.scanCurrentPageForMapText()
                     }
                     .disabled(viewModel.isRunningMapTextOCR)
 
-                    Button("Clear") {
+                    Button("Clear OCR") {
                         viewModel.clearCurrentPageMapText()
                     }
                     .disabled(viewModel.currentRecognizedMapTexts.isEmpty)
+
+                    Button("Copy Selected Text") {
+                        viewModel.copySelectedText()
+                    }
+                    .disabled(viewModel.selectedReadableText == nil)
                 }
 
                 Toggle("Show OCR boxes on map", isOn: $viewModel.showRecognizedTextOverlay)
+
+                if let selectedReadableText = viewModel.selectedReadableText {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Selected Text")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        Text(selectedReadableText)
+                            .textSelection(.enabled)
+                            .padding(8)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .fill(Color.primary.opacity(0.05))
+                            )
+
+                        if let selectedRecognizedText = viewModel.selectedRecognizedText,
+                           selectedRecognizedText.normalizedText != selectedRecognizedText.text {
+                            Text("Normalized: \(selectedRecognizedText.normalizedText)")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                } else {
+                    Text("No text selected. Use Text mode for embedded PDF text or click an OCR box/result after scanning.")
+                        .foregroundStyle(.secondary)
+                }
 
                 if viewModel.currentRecognizedMapTexts.isEmpty {
                     Text("No map text loaded for this page.")

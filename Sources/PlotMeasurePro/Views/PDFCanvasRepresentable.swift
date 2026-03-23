@@ -24,6 +24,9 @@ struct PDFCanvasRepresentable: NSViewRepresentable {
         pdfView.onCursorUpdate = { point, zoom in
             context.coordinator.viewModel.setCursor(point: point, zoom: zoom)
         }
+        pdfView.onTextSelectionUpdate = { selectedText in
+            context.coordinator.viewModel.setSelectedPDFText(selectedText)
+        }
         return pdfView
     }
 
@@ -62,7 +65,7 @@ final class PlotPDFView: PDFView {
         }
 
         override func hitTest(_ point: NSPoint) -> NSView? {
-            self
+            owner?.allowsNativeTextInteraction == true ? nil : self
         }
 
         override func draw(_ dirtyRect: NSRect) {
@@ -73,30 +76,30 @@ final class PlotPDFView: PDFView {
 
         override func resetCursorRects() {
             discardCursorRects()
-            addCursorRect(bounds, cursor: .arrow)
+            addCursorRect(bounds, cursor: owner?.allowsNativeTextInteraction == true ? .iBeam : .arrow)
         }
 
         override func cursorUpdate(with event: NSEvent) {
-            NSCursor.arrow.set()
+            if owner?.allowsNativeTextInteraction == true {
+                NSCursor.iBeam.set()
+            } else {
+                NSCursor.arrow.set()
+            }
         }
 
         override func mouseMoved(with event: NSEvent) {
-            NSCursor.arrow.set()
             owner?.mouseMoved(with: event)
         }
 
         override func mouseDown(with event: NSEvent) {
-            NSCursor.arrow.set()
             owner?.mouseDown(with: event)
         }
 
         override func mouseDragged(with event: NSEvent) {
-            NSCursor.arrow.set()
             owner?.mouseDragged(with: event)
         }
 
         override func mouseUp(with event: NSEvent) {
-            NSCursor.arrow.set()
             owner?.mouseUp(with: event)
         }
 
@@ -137,6 +140,7 @@ final class PlotPDFView: PDFView {
 
     var onCanvasEvent: ((CanvasGestureEvent) -> Void)?
     var onCursorUpdate: ((CGPoint?, Double) -> Void)?
+    var onTextSelectionUpdate: ((String?) -> Void)?
 
     private var trackingAreaRef: NSTrackingArea?
     private let overlayView = OverlayView(frame: .zero)
@@ -181,15 +185,23 @@ final class PlotPDFView: PDFView {
         true
     }
 
+    fileprivate var allowsNativeTextInteraction: Bool {
+        overlayState.activeTool == .text
+    }
+
     override func resetCursorRects() {
         discardCursorRects()
-        addCursorRect(bounds, cursor: .arrow)
+        addCursorRect(bounds, cursor: allowsNativeTextInteraction ? .iBeam : .arrow)
         overlayView.discardCursorRects()
-        overlayView.addCursorRect(overlayView.bounds, cursor: .arrow)
+        overlayView.addCursorRect(overlayView.bounds, cursor: allowsNativeTextInteraction ? .iBeam : .arrow)
     }
 
     override func cursorUpdate(with event: NSEvent) {
-        NSCursor.arrow.set()
+        if allowsNativeTextInteraction {
+            NSCursor.iBeam.set()
+        } else {
+            NSCursor.arrow.set()
+        }
     }
 
     func update(document: PDFDocument?, pageIndex: Int, overlayState: CanvasOverlayState) {
@@ -198,8 +210,11 @@ final class PlotPDFView: PDFView {
             autoScales = true
             attachScrollObserversIfNeeded()
         }
-        clearSelectionIfNeeded()
         self.overlayState = overlayState
+        if !allowsNativeTextInteraction {
+            clearSelectionIfNeeded(force: true)
+            onTextSelectionUpdate?(nil)
+        }
         if let document, pageIndex >= 0, pageIndex < document.pageCount, let page = document.page(at: pageIndex), currentPage != page {
             go(to: page)
         }
@@ -222,8 +237,18 @@ final class PlotPDFView: PDFView {
     }
 
     override func mouseMoved(with event: NSEvent) {
+        if allowsNativeTextInteraction {
+            updateCursorPosition(for: event)
+            super.mouseMoved(with: event)
+            return
+        }
+
         clearSelectionIfNeeded()
         NSCursor.arrow.set()
+        updateCursorPosition(for: event)
+    }
+
+    private func updateCursorPosition(for event: NSEvent) {
         let shouldRedrawForHover = overlayNeedsHoverPreview()
         let viewPoint = convert(event.locationInWindow, from: nil)
         guard let (page, pdfPoint) = pagePoint(for: viewPoint) else {
@@ -251,6 +276,21 @@ final class PlotPDFView: PDFView {
     }
 
     override func mouseDown(with event: NSEvent) {
+        if allowsNativeTextInteraction {
+            window?.makeFirstResponder(self)
+            let viewPoint = convert(event.locationInWindow, from: nil)
+            if let recognizedTextID = hitRecognizedText(at: viewPoint) {
+                clearSelectionIfNeeded(force: true)
+                onTextSelectionUpdate?(nil)
+                onCanvasEvent?(.selectRecognizedText(recognizedTextID))
+                invalidateOverlay()
+                return
+            }
+            onCanvasEvent?(.selectRecognizedText(nil))
+            super.mouseDown(with: event)
+            return
+        }
+
         clearSelectionIfNeeded()
         NSCursor.arrow.set()
         window?.makeFirstResponder(self)
@@ -286,6 +326,11 @@ final class PlotPDFView: PDFView {
     }
 
     override func mouseDragged(with event: NSEvent) {
+        if allowsNativeTextInteraction {
+            super.mouseDragged(with: event)
+            return
+        }
+
         clearSelectionIfNeeded()
         NSCursor.arrow.set()
         guard let activeDrag else {
@@ -301,6 +346,12 @@ final class PlotPDFView: PDFView {
     }
 
     override func mouseUp(with event: NSEvent) {
+        if allowsNativeTextInteraction {
+            super.mouseUp(with: event)
+            onTextSelectionUpdate?(currentSelection?.string)
+            return
+        }
+
         clearSelectionIfNeeded()
         NSCursor.arrow.set()
         guard let activeDrag else {
@@ -448,6 +499,9 @@ final class PlotPDFView: PDFView {
             guard event.window === self.window else { return event }
             let location = self.convert(event.locationInWindow, from: nil)
             guard self.bounds.contains(location) else { return event }
+            if self.allowsNativeTextInteraction {
+                return event
+            }
             self.clearSelectionIfNeeded()
             NSCursor.arrow.set()
             return nil
@@ -462,6 +516,7 @@ final class PlotPDFView: PDFView {
     @objc private func handlePageChanged() {
         hoverPagePoint = nil
         hoverPageIndex = nil
+        onTextSelectionUpdate?(nil)
         invalidateOverlay()
     }
 
@@ -470,6 +525,10 @@ final class PlotPDFView: PDFView {
     }
 
     @objc private func handleSelectionChanged() {
+        if allowsNativeTextInteraction {
+            onTextSelectionUpdate?(currentSelection?.string)
+            return
+        }
         clearSelectionIfNeeded()
         NSCursor.arrow.set()
     }
@@ -561,14 +620,16 @@ final class PlotPDFView: PDFView {
 
     private func applyArrowCursorRects(to view: NSView) {
         view.discardCursorRects()
-        view.addCursorRect(view.bounds, cursor: .arrow)
+        view.addCursorRect(view.bounds, cursor: allowsNativeTextInteraction ? .iBeam : .arrow)
         view.window?.invalidateCursorRects(for: view)
     }
 
-    private func clearSelectionIfNeeded() {
+    private func clearSelectionIfNeeded(force: Bool = false) {
+        guard force || !allowsNativeTextInteraction else { return }
         guard currentSelection != nil else { return }
         clearSelection()
         currentSelection = nil
+        onTextSelectionUpdate?(nil)
     }
 
     private func overlayNeedsHoverPreview() -> Bool {
@@ -1005,6 +1066,22 @@ final class PlotPDFView: PDFView {
         guard let first = draft.points.first else { return false }
         let firstViewPoint = convert(first.cgPoint, from: currentPage)
         return hypot(viewPoint.x - firstViewPoint.x, viewPoint.y - firstViewPoint.y) < 14
+    }
+
+    private func hitRecognizedText(at viewPoint: CGPoint) -> UUID? {
+        guard overlayState.showRecognizedTextOverlay else { return nil }
+        guard let currentPage else { return nil }
+
+        var best: (UUID, CGFloat)?
+        for recognizedText in overlayState.recognizedTexts {
+            let rect = convert(rect: recognizedText.boundingBox, from: currentPage).insetBy(dx: -4, dy: -4)
+            guard rect.contains(viewPoint) else { continue }
+            let area = rect.width * rect.height
+            if best == nil || area < best!.1 {
+                best = (recognizedText.id, area)
+            }
+        }
+        return best?.0
     }
 
     private func hitMeasurement(at viewPoint: CGPoint) -> UUID? {

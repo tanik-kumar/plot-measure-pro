@@ -49,6 +49,7 @@ final class PlotMeasureProViewModel: ObservableObject {
     @Published var ocrSuggestions: [OCRScaleSuggestion] = []
     @Published var recognizedMapTextsByPage: [Int: [RecognizedMapText]] = [:]
     @Published var selectedRecognizedTextID: UUID?
+    @Published var selectedPDFText: String?
     @Published var alertState: AlertState?
     @Published var statusMessage = "Open a survey PDF to start."
     @Published var isRunningOCR = false
@@ -92,6 +93,18 @@ final class PlotMeasureProViewModel: ObservableObject {
 
     var currentRecognizedMapTexts: [RecognizedMapText] {
         recognizedMapTextsByPage[currentPageIndex] ?? []
+    }
+
+    var selectedRecognizedText: RecognizedMapText? {
+        guard let selectedRecognizedTextID else { return nil }
+        return currentRecognizedMapTexts.first { $0.id == selectedRecognizedTextID }
+    }
+
+    var selectedReadableText: String? {
+        if let selectedPDFText, !selectedPDFText.isEmpty {
+            return selectedPDFText
+        }
+        return selectedRecognizedText?.text
     }
 
     var overlayState: CanvasOverlayState {
@@ -255,6 +268,7 @@ final class PlotMeasureProViewModel: ObservableObject {
         ocrSuggestions = []
         recognizedMapTextsByPage = [:]
         selectedRecognizedTextID = nil
+        selectedPDFText = nil
         edgeSnapEngine.clearCache()
         clearHistory()
         applyRotationsFromProject()
@@ -275,6 +289,7 @@ final class PlotMeasureProViewModel: ObservableObject {
         ocrSuggestions = []
         recognizedMapTextsByPage = [:]
         selectedRecognizedTextID = nil
+        selectedPDFText = nil
         edgeSnapEngine.clearCache()
         clearHistory()
         applyRotationsFromProject()
@@ -290,6 +305,7 @@ final class PlotMeasureProViewModel: ObservableObject {
         calibrationDraftPoints = []
         ocrSuggestions = []
         selectedRecognizedTextID = nil
+        selectedPDFText = nil
         statusMessage = "Page \(index + 1) selected."
     }
 
@@ -306,8 +322,14 @@ final class PlotMeasureProViewModel: ObservableObject {
     func setTool(_ tool: ToolMode) {
         activeTool = tool
         selectedPointID = nil
+        if tool != .text {
+            selectedPDFText = nil
+        }
         if tool != .edit, tool != .pan {
             statusMessage = "Active tool: \(tool.title)."
+        }
+        if tool == .text {
+            statusMessage = "Text mode: drag to select embedded PDF text, or run OCR to read scanned map text."
         }
     }
 
@@ -438,6 +460,24 @@ final class PlotMeasureProViewModel: ObservableObject {
 
     func selectRecognizedText(_ id: UUID?) {
         selectedRecognizedTextID = id
+        if id != nil {
+            selectedPDFText = nil
+        }
+    }
+
+    func setSelectedPDFText(_ text: String?) {
+        let trimmed = text?.trimmingCharacters(in: .whitespacesAndNewlines)
+        selectedPDFText = (trimmed?.isEmpty == false) ? trimmed : nil
+        if selectedPDFText != nil {
+            selectedRecognizedTextID = nil
+        }
+    }
+
+    func copySelectedText() {
+        guard let selectedReadableText else { return }
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(selectedReadableText, forType: .string)
+        statusMessage = "Copied selected text."
     }
 
     func applyOCRSuggestion(_ suggestion: OCRScaleSuggestion) {
@@ -629,6 +669,8 @@ final class PlotMeasureProViewModel: ObservableObject {
             if id == nil {
                 selectedPointID = nil
             }
+        case let .selectRecognizedText(id):
+            selectRecognizedText(id)
         case let .selectPoint(measurementID, pointID):
             selectedMeasurementID = measurementID
             selectedPointID = pointID
@@ -665,6 +707,10 @@ final class PlotMeasureProViewModel: ObservableObject {
         switch activeTool {
         case .pan:
             break
+        case .text:
+            selectedMeasurementID = nil
+            selectedPointID = nil
+            statusMessage = "Text mode: drag to select embedded PDF text or click OCR boxes after scanning."
         case .calibration:
             registerUndoSnapshot()
             let snapped = snappedPoint(point, pageIndex: currentPageIndex)

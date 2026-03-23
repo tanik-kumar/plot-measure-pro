@@ -88,6 +88,7 @@ enum MeasurementKind: String, Codable, CaseIterable, Identifiable {
 
 enum ToolMode: String, Codable, CaseIterable, Identifiable {
     case pan
+    case text
     case calibration
     case distance
     case path
@@ -100,6 +101,8 @@ enum ToolMode: String, Codable, CaseIterable, Identifiable {
         switch self {
         case .pan:
             return "Pan"
+        case .text:
+            return "Text"
         case .calibration:
             return "Calibrate"
         case .distance:
@@ -121,7 +124,7 @@ enum ToolMode: String, Codable, CaseIterable, Identifiable {
             return .path
         case .polygon:
             return .polygon
-        case .pan, .calibration, .edit:
+        case .pan, .text, .calibration, .edit:
             return nil
         }
     }
